@@ -1,0 +1,245 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed May 03 20:30:13 2017
+
+@author: Jack
+"""
+
+import numpy as np
+import random
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm
+import matplotlib.colorbar
+import matplotlib.colors
+
+
+
+#######From user ImportanceOfBeingErnest on stack overflow#################################################
+def cuboid_data(center, size=(1,1,1)):
+    # code taken from
+    # http://stackoverflow.com/questions/30715083/python-plotting-a-wireframe-3d-cuboid?noredirect=1&lq=1
+    # suppose axis direction: x: to left; y: to inside; z: to upper
+    # get the (left, outside, bottom) point
+    o = [a - b / 2 for a, b in zip(center, size)]
+    # get the length, width, and height
+    l, w, h = size
+    x = [[o[0], o[0] + l, o[0] + l, o[0], o[0]],  # x coordinate of points in bottom surface
+         [o[0], o[0] + l, o[0] + l, o[0], o[0]],  # x coordinate of points in upper surface
+         [o[0], o[0] + l, o[0] + l, o[0], o[0]],  # x coordinate of points in outside surface
+         [o[0], o[0] + l, o[0] + l, o[0], o[0]]]  # x coordinate of points in inside surface
+    y = [[o[1], o[1], o[1] + w, o[1] + w, o[1]],  # y coordinate of points in bottom surface
+         [o[1], o[1], o[1] + w, o[1] + w, o[1]],  # y coordinate of points in upper surface
+         [o[1], o[1], o[1], o[1], o[1]],          # y coordinate of points in outside surface
+         [o[1] + w, o[1] + w, o[1] + w, o[1] + w, o[1] + w]]    # y coordinate of points in inside surface
+    z = [[o[2], o[2], o[2], o[2], o[2]],                        # z coordinate of points in bottom surface
+         [o[2] + h, o[2] + h, o[2] + h, o[2] + h, o[2] + h],    # z coordinate of points in upper surface
+         [o[2], o[2], o[2] + h, o[2] + h, o[2]],                # z coordinate of points in outside surface
+         [o[2], o[2], o[2] + h, o[2] + h, o[2]]]                # z coordinate of points in inside surface
+    return x, y, z
+
+def plotCubeAt(pos=(0,0,0), c="b", alpha=0.1, ax=None):
+    # Plotting N cube elements at position pos
+    if ax !=None:
+        X, Y, Z = cuboid_data( (pos[0],pos[1],pos[2]) )
+        ax.plot_surface(X, Y, Z, color=c, rstride=1, cstride=1, alpha=0.1)
+
+def plotMatrix(ax, x, y, z, data, cmap="jet", cax=None, alpha=0.1):
+    # plot a Matrix 
+    norm = matplotlib.colors.Normalize(vmin=data.min(), vmax=data.max())
+    colors = lambda i,j,k : matplotlib.cm.ScalarMappable(norm=norm,cmap = cmap).to_rgba(data[i,j,k]) 
+    for i, xi in enumerate(x):
+            for j, yi in enumerate(y):
+                for k, zi, in enumerate(z):
+                    plotCubeAt(pos=(xi, yi, zi), c=colors(i,j,k), alpha=alpha,  ax=ax)
+
+
+
+    if cax !=None:
+        cbar = matplotlib.colorbar.ColorbarBase(cax, cmap=cmap,
+                                norm=norm,
+                                orientation='vertical')  
+        cbar.set_ticks(np.unique(data))
+        # set the colorbar transparent as well
+        cbar.solids.set(alpha=alpha)              
+
+#######################################################################################################
+
+
+#main
+
+
+
+
+
+L= 5
+H= 5
+W= 5
+
+earth = np.random.rand(L,W,H)
+path = np.zeros((L,W,H))
+aggregatePaths =  np.zeros((L,W,H))
+
+
+timesteps = 10
+
+#simulate rainfall event, run a trace from everywhere on the land surfac
+for i in range(0,L):
+    for j in range(0,W):
+        h=H-1
+        l=i
+        w=j
+        path[l,w,h]=1
+        for t in range (0,timesteps):
+            if  l != 0 and w!= 0 and w != W-1 and l!= L-1 and h!=0:
+                north = earth[l+1,w,h]
+                south =earth[l-1,w,h]
+                east = earth[l,w+1,h]
+                west =earth[l,w-1,h]
+                down = earth[l,w,h-1]
+                
+                nextIndex =  max(north, south, east, west, down)
+                if nextIndex == north:
+                    path[l+1,w,h] = 1
+                    l=l+1
+                elif nextIndex == south:
+                    path[l-1,w,h] = 1
+                    l=l-1
+                elif nextIndex == east:
+                    path[l,w+1,h] = 1
+                    w=w+1
+                elif nextIndex == west:
+                    path[l,w-1,h] = 1
+                    w= w-1
+                elif nextIndex == down:
+                    path[l,w,h-1] = 1
+                    h=h-1
+               
+                if  l == 0 :
+                    north = earth[l+1,w,h]
+               
+                    east = earth[l,w+1,h]
+                    west =earth[l,w-1,h]
+                    down = earth[l,w,h-1]
+                    
+                    nextIndex =  max(north,  east, west, down)
+                if nextIndex == north:
+                    path[l+1,w,h] = 1
+                    l=l+1
+               
+                elif nextIndex == east:
+                    path[l,w+1,h] = 1
+                    w=w+1
+                elif nextIndex == west:
+                    path[l,w-1,h] = 1
+                    w= w-1
+                elif nextIndex == down:
+                    path[l,w,h-1] = 1
+                    h=h-1
+                    
+                if  w== 0 :
+                    north = earth[l+1,w,h]
+                    south =earth[l-1,w,h]
+                    east = earth[l,w+1,h]
+             
+                    down = earth[l,w,h-1]
+                
+                    nextIndex =  max(north, south, east,  down)
+                if nextIndex == north:
+                    path[l+1,w,h] = 1
+                    l=l+1
+                elif nextIndex == south:
+                    path[l-1,w,h] = 1
+                    l=l-1
+                elif nextIndex == east:
+                    path[l,w+1,h] = 1
+                    w=w+1
+               
+                elif nextIndex == down:
+                    path[l,w,h-1] = 1
+                    h=h-1
+                    
+                if   w == W-1:
+                    north = earth[l+1,w,h]
+                    south =earth[l-1,w,h]
+                
+                    west =earth[l,w-1,h]
+                    down = earth[l,w,h-1]
+                
+                    nextIndex =  max(north, south,  west, down)
+                if nextIndex == north:
+                    path[l+1,w,h] = 1
+                    l=l+1
+                elif nextIndex == south:
+                    path[l-1,w,h] = 1
+                    l=l-1
+               
+                elif nextIndex == west:
+                    path[l,w-1,h] = 1
+                    w= w-1
+                elif nextIndex == down:
+                    path[l,w,h-1] = 1
+                    h=h-1
+                    
+                if   l== L-1 :
+               
+                    south =earth[l-1,w,h]
+                    east = earth[l,w+1,h]
+                    west =earth[l,w-1,h]
+                    down = earth[l,w,h-1]
+                
+                    nextIndex =  max( south, east, west, down)
+             
+                elif nextIndex == south:
+                    path[l-1,w,h] = 1
+                    l=l-1
+                elif nextIndex == east:
+                    path[l,w+1,h] = 1
+                    w=w+1
+                elif nextIndex == west:
+                    path[l,w-1,h] = 1
+                    w= w-1
+                elif nextIndex == down:
+                    path[l,w,h-1] = 1
+                    h=h-1
+                    
+                if   h==0:
+                    north = earth[l+1,w,h]
+                    south =earth[l-1,w,h]
+                    east = earth[l,w+1,h]
+                    west =earth[l,w-1,h]
+               
+                
+                    nextIndex =  max(north, south, east, west)
+                if nextIndex == north:
+                    path[l+1,w,h] = 1
+                    l=l+1
+                elif nextIndex == south:
+                    path[l-1,w,h] = 1
+                    l=l-1
+                elif nextIndex == east:
+                    path[l,w+1,h] = 1
+                    w=w+1
+                elif nextIndex == west:
+                    path[l,w-1,h] = 1
+                    w= w-1
+            
+            aggregatePaths =  aggregatePaths + path
+            path = np.zeros((L,W,H))       
+                
+   
+
+X=range(0,L)
+Y=range(0,W)
+Z=range (0,H)
+
+fig = plt.figure(figsize=(10,4))
+ax = fig.add_axes([0.1, 0.1, 0.7, 0.8], projection='3d')
+ax_cb = fig.add_axes([0.8, 0.3, 0.05, 0.45])
+ax.set_aspect('equal')
+plotMatrix(ax, X, Y, Z, aggregatePaths, cmap="jet", cax = ax_cb)
+
+plt.savefig('plt'+".png")
+plt.show()
+
