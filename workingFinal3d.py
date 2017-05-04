@@ -82,16 +82,19 @@ path = np.zeros((L,W,H))
 aggregatePaths =  np.zeros((L,W,H))
 
 
-timesteps = 10
+timesteps =5
 
 #simulate rainfall event, run a trace from everywhere on the land surfac
-for i in range(0,L):
-    for j in range(0,W):
+for i in range(L-2,L-1):
+    for j in range(W-2,W-1):
         h=H-1
         l=i
         w=j
         path[l,w,h]=1
         for t in range (0,timesteps):
+           #central points
+          
+                    
             if  l != 0 and w!= 0 and w != W-1 and l!= L-1 and h!=0:
                 north = earth[l+1,w,h]
                 south =earth[l-1,w,h]
@@ -101,22 +104,173 @@ for i in range(0,L):
                 
                 nextIndex =  max(north, south, east, west, down)
                 if nextIndex == north:
-                    path[l+1,w,h] = 1
+                    path[l+1,w,h] += 1
                     l=l+1
                 elif nextIndex == south:
-                    path[l-1,w,h] = 1
+                    path[l-1,w,h] += 1
                     l=l-1
                 elif nextIndex == east:
-                    path[l,w+1,h] = 1
+                    path[l,w+1,h] += 1
                     w=w+1
                 elif nextIndex == west:
-                    path[l,w-1,h] = 1
+                    path[l,w-1,h] += 1
+                    w= w-1
+                elif nextIndex == down:
+                    path[l,w,h-1] += 1
+                    h=h-1
+              ##check corneres
+             
+              #l=0,w=0
+            elif  l == 0 and w== 0 and h!=0:
+                north = earth[l+1,w,h]
+               
+                east = earth[l,w+1,h]
+         
+                down = earth[l,w,h-1]
+                
+                nextIndex =  max(north,  east,  down)
+                if nextIndex == north:
+                    path[l+1,w,h] += 1
+                    l=l+1
+              
+                elif nextIndex == east:
+                    path[l,w+1,h] += 1
+                    w=w+1
+              
+                elif nextIndex == down:
+                    path[l,w,h-1] += 1
+                    h=h-1
+              #l=0,w=w
+            elif  l == 0  and w == W-1 and h!=0:
+                north = earth[l+1,w,h]
+             
+               
+                west =earth[l,w-1,h]
+                down = earth[l,w,h-1]
+                
+                nextIndex =  max(north,  west, down)
+                if nextIndex == north:
+                    path[l+1,w,h] += 1
+                    l=l+1
+                
+                elif nextIndex == west:
+                    path[l,w-1,h] += 1
                     w= w-1
                 elif nextIndex == down:
                     path[l,w,h-1] = 1
                     h=h-1
+              #l=l,w=0
+            elif   w== 0 and l== L-1 and h!=0:
+         
+                south =earth[l-1,w,h]
+                east = earth[l,w+1,h]
+       
+                down = earth[l,w,h-1]
+                
+                nextIndex =  max(south, east, down)
+                
+                if nextIndex == south:
+                    path[l-1,w,h] += 1
+                    l=l-1
+                elif nextIndex == east:
+                    path[l,w+1,h] += 1
+                    w=w+1
                
-                if  l == 0 :
+                elif nextIndex == down:
+                    path[l,w,h-1] += 1
+                    h=h-1
+              #l=l,w=w
+            elif w == W-1 and l== L-1 and h!=0:
+            
+                south =earth[l-1,w,h]
+              
+                west =earth[l,w-1,h]
+                down = earth[l,w,h-1]
+                
+                nextIndex =  max( south,  west, down)
+                
+                if nextIndex == south:
+                    path[l-1,w,h]+= 1
+                    l=l-1
+                
+                elif nextIndex == west:
+                    path[l,w-1,h] += 1
+                    w= w-1
+                elif nextIndex == down:
+                    path[l,w,h-1] += 1
+                    h=h-1
+               #l=0,w=0, h=0
+            elif  l == 0 and w== 0 and h==0 :
+                north = earth[l+1,w,h]
+              
+                east = earth[l,w+1,h]
+               
+             
+                
+                nextIndex =  max(north,  east)
+                if nextIndex == north:
+                    path[l+1,w,h] += 1
+                    l=l+1
+              
+                elif nextIndex == east:
+                    path[l,w+1,h]+= 1
+                    w=w+1
+               
+                  
+              #l=0,w=w,h=0
+            elif  l == 0 and w == W-1 and h==0:
+                north = earth[l+1,w,h]
+            
+              
+                west =earth[l,w-1,h]
+               
+                
+                nextIndex =  max(north,  west)
+                if nextIndex == north:
+                    path[l+1,w,h] += 1
+                    l=l+1
+            
+                elif nextIndex == west:
+                    path[l,w-1,h]+= 1
+                    w= w-1
+             
+              #l=l,w=0,h=0
+            elif  w== 0  and l== L-1 and h==0:
+              
+                south =earth[l-1,w,h]
+                east = earth[l,w+1,h]
+                
+          
+                
+                nextIndex =  max(south, east)
+           
+                if nextIndex == south:
+                    path[l-1,w,h] += 1
+                    l=l-1
+                elif nextIndex == east:
+                    path[l,w+1,h] += 1
+                    w=w+1
+                
+              #l=l,w=w,h=0
+            elif   w == W-1 and l== L-1 and h==0:
+           
+                south =earth[l-1,w,h]
+               
+                west =earth[l,w-1,h]
+              
+                
+                nextIndex =  max( south,  west)
+               
+                if nextIndex == south:
+                    path[l-1,w,h]+= 1
+                    l=l-1
+               
+                elif nextIndex == west:
+                    path[l,w-1,h] += 1
+                    w= w-1
+               
+              #check edges
+            elif  l == 0 :
                     north = earth[l+1,w,h]
                
                     east = earth[l,w+1,h]
@@ -124,21 +278,21 @@ for i in range(0,L):
                     down = earth[l,w,h-1]
                     
                     nextIndex =  max(north,  east, west, down)
-                if nextIndex == north:
-                    path[l+1,w,h] = 1
-                    l=l+1
+                    if nextIndex == north:
+                        path[l+1,w,h]+= 1
+                        l=l+1
                
-                elif nextIndex == east:
-                    path[l,w+1,h] = 1
-                    w=w+1
-                elif nextIndex == west:
-                    path[l,w-1,h] = 1
-                    w= w-1
-                elif nextIndex == down:
-                    path[l,w,h-1] = 1
-                    h=h-1
+                    elif nextIndex == east:
+                        path[l,w+1,h]+= 1
+                        w=w+1
+                    elif nextIndex == west:
+                        path[l,w-1,h] += 1
+                        w= w-1
+                    elif nextIndex == down:
+                        path[l,w,h-1]+= 1
+                        h=h-1
                     
-                if  w== 0 :
+            elif  w== 0 :
                     north = earth[l+1,w,h]
                     south =earth[l-1,w,h]
                     east = earth[l,w+1,h]
@@ -146,21 +300,21 @@ for i in range(0,L):
                     down = earth[l,w,h-1]
                 
                     nextIndex =  max(north, south, east,  down)
-                if nextIndex == north:
-                    path[l+1,w,h] = 1
-                    l=l+1
-                elif nextIndex == south:
-                    path[l-1,w,h] = 1
-                    l=l-1
-                elif nextIndex == east:
-                    path[l,w+1,h] = 1
-                    w=w+1
+                    if nextIndex == north:
+                        path[l+1,w,h] += 1
+                        l=l+1
+                    elif nextIndex == south:
+                        path[l-1,w,h]+= 1
+                        l=l-1
+                    elif nextIndex == east:
+                        path[l,w+1,h] += 1
+                        w=w+1
                
-                elif nextIndex == down:
-                    path[l,w,h-1] = 1
-                    h=h-1
+                    elif nextIndex == down:
+                        path[l,w,h-1]+= 1
+                        h=h-1
                     
-                if   w == W-1:
+            elif   w == W-1:
                     north = earth[l+1,w,h]
                     south =earth[l-1,w,h]
                 
@@ -168,22 +322,22 @@ for i in range(0,L):
                     down = earth[l,w,h-1]
                 
                     nextIndex =  max(north, south,  west, down)
-                if nextIndex == north:
-                    path[l+1,w,h] = 1
-                    l=l+1
-                elif nextIndex == south:
-                    path[l-1,w,h] = 1
-                    l=l-1
+                    if nextIndex == north:
+                        path[l+1,w,h] += 1
+                        l=l+1
+                    elif nextIndex == south:
+                        path[l-1,w,h] += 1
+                        l=l-1
                
-                elif nextIndex == west:
-                    path[l,w-1,h] = 1
-                    w= w-1
-                elif nextIndex == down:
-                    path[l,w,h-1] = 1
-                    h=h-1
+                    elif nextIndex == west:
+                        path[l,w-1,h] += 1
+                        w= w-1
+                    elif nextIndex == down:
+                        path[l,w,h-1] += 1
+                        h=h-1
                     
-                if   l== L-1 :
-               
+            elif   l== L-1 :
+              
                     south =earth[l-1,w,h]
                     east = earth[l,w+1,h]
                     west =earth[l,w-1,h]
@@ -191,20 +345,20 @@ for i in range(0,L):
                 
                     nextIndex =  max( south, east, west, down)
              
-                elif nextIndex == south:
-                    path[l-1,w,h] = 1
-                    l=l-1
-                elif nextIndex == east:
-                    path[l,w+1,h] = 1
-                    w=w+1
-                elif nextIndex == west:
-                    path[l,w-1,h] = 1
-                    w= w-1
-                elif nextIndex == down:
-                    path[l,w,h-1] = 1
-                    h=h-1
+                    if nextIndex == south:
+                        path[l-1,w,h] += 1
+                        l=l-1
+                    elif nextIndex == east:
+                        path[l,w+1,h] += 1
+                        w=w+1
+                    elif nextIndex == west:
+                        path[l,w-1,h] += 1
+                        w= w-1
+                    elif nextIndex == down:
+                        path[l,w,h-1]+= 1
+                        h=h-1
                     
-                if   h==0:
+            elif   h==0:
                     north = earth[l+1,w,h]
                     south =earth[l-1,w,h]
                     east = earth[l,w+1,h]
@@ -212,22 +366,45 @@ for i in range(0,L):
                
                 
                     nextIndex =  max(north, south, east, west)
+                    if nextIndex == north:
+                        path[l+1,w,h]+= 1
+                        l=l+1
+                    elif nextIndex == south:
+                        path[l-1,w,h] += 1
+                        l=l-1
+                    elif nextIndex == east:
+                        path[l,w+1,h] += 1
+                        w=w+1
+                    elif nextIndex == west:
+                        path[l,w-1,h] += 1
+                        w= w-1
+            #need corneres
+        
+        if path[l,w,h]>1:
+                path[l,w,h]=path[l,w,h]-1
+                path[l,w,h-1]+=1
+             
                 if nextIndex == north:
-                    path[l+1,w,h] = 1
-                    l=l+1
+                    path[l-1,w,h] += -1
+                  
                 elif nextIndex == south:
-                    path[l-1,w,h] = 1
-                    l=l-1
-                elif nextIndex == east:
-                    path[l,w+1,h] = 1
-                    w=w+1
-                elif nextIndex == west:
-                    path[l,w-1,h] = 1
-                    w= w-1
-            
-            aggregatePaths =  aggregatePaths + path
-            path = np.zeros((L,W,H))       
+                    path[l+1,w,h] += -1
                 
+                elif nextIndex == east:
+                    path[l,w-1,h] += -1
+                   
+                elif nextIndex == west:
+                    path[l,w+1,h] += -1
+                   
+                elif nextIndex == down:
+                    path[l,w,h+1] += -1
+                t=t-1
+                h=h-1    
+        aggregatePaths =  aggregatePaths + path
+        print np.sum(path)
+        path = np.zeros((L,W,H))    
+
+#print np.sum(aggregatePaths)/(timesteps*L*W)
    
 
 X=range(0,L)
