@@ -89,7 +89,7 @@ def advance_step(l,w,h,t):
     global earth
     global path
     global aggregatePaths
-    
+    global append
     north =0
     south =0
     east =0
@@ -101,7 +101,7 @@ def advance_step(l,w,h,t):
                 east = earth[l,w+1,h]
                 west =earth[l,w-1,h]
                 down = earth[l,w,h-1] #error
-                print 1
+          
                 nextIndex =  max(north, south, east, west, down)
                 if nextIndex == north:
                     path[l+1,w,h] += 1
@@ -127,7 +127,7 @@ def advance_step(l,w,h,t):
                 east = earth[l,w+1,h]
          
                 down = earth[l,w,h-1]
-                print 2
+               
                 nextIndex =  max(north,  east,  down)
                 if nextIndex == north:
                     path[l+1,w,h] += 1
@@ -144,7 +144,7 @@ def advance_step(l,w,h,t):
     elif  l == 0  and w == W-1 and h!=0:
                 north = earth[l+1,w,h]
              
-                print 3
+                
                 west =earth[l,w-1,h]
                 down = earth[l,w,h-1]
                 
@@ -161,7 +161,7 @@ def advance_step(l,w,h,t):
                     h=h-1
               #l=l,w=0
     elif   w== 0 and l== L-1 and h!=0:
-                print 4
+               
                 south =earth[l-1,w,h]
                 east = earth[l,w+1,h]
        
@@ -181,7 +181,7 @@ def advance_step(l,w,h,t):
                     h=h-1
               #l=l,w=w
     elif w == W-1 and l== L-1 and h!=0:
-                print 5
+               
                 south =earth[l-1,w,h]
               
                 west =earth[l,w-1,h]
@@ -204,7 +204,7 @@ def advance_step(l,w,h,t):
                 north = earth[l+1,w,h]
               
                 east = earth[l,w+1,h]
-                print 6
+                
              
                 
                 nextIndex =  max(north,  east)
@@ -221,7 +221,7 @@ def advance_step(l,w,h,t):
     elif  l == 0 and w == W-1 and h==0:
                 north = earth[l+1,w,h]
             
-                print 7
+                
                 west =earth[l,w-1,h]
                
                 
@@ -236,7 +236,7 @@ def advance_step(l,w,h,t):
              
               #l=l,w=0,h=0
     elif  w== 0  and l== L-1 and h==0:
-                print 8
+             
                 south =earth[l-1,w,h]
                 east = earth[l,w+1,h]
                 
@@ -253,7 +253,7 @@ def advance_step(l,w,h,t):
                 
               #l=l,w=w,h=0
     elif   w == W-1 and l== L-1 and h==0:
-                print 9
+               
                 south =earth[l-1,w,h]
                
                 west =earth[l,w-1,h]
@@ -274,7 +274,7 @@ def advance_step(l,w,h,t):
                     east = earth[l,w+1,h]
                     west =earth[l,w-1,h]
                
-                    print 14
+                    
                     nextIndex =  max(north, south, east, west)
                     if nextIndex == north:
                         path[l+1,w,h]+= 1
@@ -291,7 +291,7 @@ def advance_step(l,w,h,t):
               #check edges
     elif  l == 0 :
                     north = earth[l+1,w,h]
-                    print 10
+                
                     east = earth[l,w+1,h]
                     west =earth[l,w-1,h]
                     if h!=0:
@@ -300,6 +300,7 @@ def advance_step(l,w,h,t):
                        earth =  np.concatenate((np.random.rand(L,W,1),earth),2)
                        path =  np.concatenate((np.zeros((L,W,1)),path),2) 
                        aggregatePaths =  np.concatenate((np.zeros((L,W,1)),aggregatePaths),2)
+                       append+=1
                        down = earth[l,w,h-1]
                     nextIndex =  max(north,  east, west, down)
                     if nextIndex == north:
@@ -320,13 +321,14 @@ def advance_step(l,w,h,t):
                     north = earth[l+1,w,h]
                     south =earth[l-1,w,h]
                     east = earth[l,w+1,h]
-                    print 11
+                    
                     if h!=0:
                         down = earth[l,w,h-1] #error
                     else:
                        earth =  np.concatenate((np.random.rand(L,W,1),earth),2)
                        path =  np.concatenate((np.zeros((L,W,1)),path),2) 
                        aggregatePaths =  np.concatenate((np.zeros((L,W,1)),aggregatePaths),2)
+                       append+=1
                        down = earth[l,w,h-1]
                 
                     nextIndex =  max(north, south, east,  down)
@@ -347,7 +349,7 @@ def advance_step(l,w,h,t):
     elif   w == W-1:
                     north = earth[l+1,w,h]
                     south =earth[l-1,w,h]
-                    print 12
+                 
                     west =earth[l,w-1,h]
                     if h!=0:
                         down = earth[l,w,h-1] #error
@@ -355,6 +357,7 @@ def advance_step(l,w,h,t):
                        earth =  np.concatenate((np.random.rand(L,W,1),earth),2)
                        path =  np.concatenate((np.zeros((L,W,1)),path),2) 
                        aggregatePaths =  np.concatenate((np.zeros((L,W,1)),aggregatePaths),2)
+                       append+=1
                        down = earth[l,w,h-1]
                 
                     nextIndex =  max(north, south,  west, down)
@@ -382,10 +385,10 @@ def advance_step(l,w,h,t):
                     else:
                        aggregatePaths =  np.concatenate((np.zeros((L,W,1)),aggregatePaths),2)
                        earth =  np.concatenate((np.random.rand(L,W,1),earth),2)
-                       path =  np.concatenate((np.zeros((L,W,1)),path),2) 
+                       path =  np.concatenate((np.zeros((L,W,1)),path),2)
+                       append+=1
                        down = earth[l,w,h-1]
 
-                    print 13
                     nextIndex =  max( south, east, west, down)
              
                     if nextIndex == south:
@@ -406,7 +409,7 @@ def advance_step(l,w,h,t):
         
     if path[l,w,h]>1:
                 path[l,w,h]=path[l,w,h]-1
-                path[l,w,h-1]+=1  #eeror
+                #eeror
                 print 'doubled back', l ,w, h
                 if nextIndex == north:
                     path[l-1,w,h] += -1
@@ -427,6 +430,7 @@ def advance_step(l,w,h,t):
                 t=t-1
                 if(h!=0):
                     h=h-1
+                    path[l,w,h-1]+=1
                 else:
                     h=h
                     earth =  np.concatenate((np.random.rand(L,W,1),earth),2)
@@ -442,23 +446,23 @@ def advance_step(l,w,h,t):
 timesteps =10
 
 #simulate rainfall event, run a trace from everywhere on the land surfac
-for i in range(L-2,L-1):
-    for j in range(W-2,W-1):
-        h=H-1
+for i in range(0,L-1):
+    for j in range(0,W-1):
+        h=H+append-1
         l=i
         w=j
         path[l,w,h]=1
         for t in range (0,timesteps):
            #central points
             print  l,w,h
-           
+            print path.shape, earth.shape, aggregatePaths.shape
             l,w,h,t =      advance_step(l,w,h,t) 
                 
         aggregatePaths =  aggregatePaths + path
         print np.sum(path)
     
         
-        path = np.zeros((L,W,H))    
+        path = np.zeros((L,W,H+append))    
 
 #print np.sum(aggregatePaths)/(timesteps*L*W)
    
@@ -472,6 +476,11 @@ ax = fig.add_axes([0.1, 0.1, 0.7, 0.8], projection='3d')
 ax_cb = fig.add_axes([0.8, 0.3, 0.05, 0.45])
 ax.set_aspect('equal')
 plotMatrix(ax, X, Y, Z, aggregatePaths, cmap="jet", cax = ax_cb)
+ax.set_xlabel('N-S axis, north towards zero')
+ax.set_ylabel('E-W axis, east towards zero')
+ax.set_zlabel('h axis, down towards zero')
+
+
 
 plt.savefig('plt'+".png")
 plt.show()
