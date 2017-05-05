@@ -6,7 +6,7 @@ Created on Wed May 03 20:30:13 2017
 """
 
 import numpy as np
-import random
+
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import matplotlib.pyplot as plt
@@ -72,7 +72,7 @@ def plotMatrix(ax, x, y, z, data, cmap="jet", cax=None, alpha=0.1):
 
 append = 0
 
-
+t=0
 L= 5
 H= 5
 W= 5
@@ -90,6 +90,7 @@ def advance_step(l,w,h,t):
     global path
     global aggregatePaths
     global append
+
     north =0
     south =0
     east =0
@@ -181,7 +182,7 @@ def advance_step(l,w,h,t):
                     h=h-1
               #l=l,w=w
     elif w == W-1 and l== L-1 and h!=0:
-               
+           
                 south =earth[l-1,w,h]
               
                 west =earth[l,w-1,h]
@@ -301,6 +302,7 @@ def advance_step(l,w,h,t):
                        path =  np.concatenate((np.zeros((L,W,1)),path),2) 
                        aggregatePaths =  np.concatenate((np.zeros((L,W,1)),aggregatePaths),2)
                        append+=1
+                       h+=1
                        down = earth[l,w,h-1]
                     nextIndex =  max(north,  east, west, down)
                     if nextIndex == north:
@@ -315,7 +317,10 @@ def advance_step(l,w,h,t):
                         w= w-1
                     elif nextIndex == down:
                         path[l,w,h-1]+= 1
-                        h=h-1
+                        if h>0:
+                            h=h-1
+                  
+                             
                     
     elif  w== 0 :
                     north = earth[l+1,w,h]
@@ -329,6 +334,7 @@ def advance_step(l,w,h,t):
                        path =  np.concatenate((np.zeros((L,W,1)),path),2) 
                        aggregatePaths =  np.concatenate((np.zeros((L,W,1)),aggregatePaths),2)
                        append+=1
+                       h+=1
                        down = earth[l,w,h-1]
                 
                     nextIndex =  max(north, south, east,  down)
@@ -344,7 +350,8 @@ def advance_step(l,w,h,t):
                
                     elif nextIndex == down:
                         path[l,w,h-1]+= 1
-                        h=h-1
+                        if h>0:
+                            h=h-1
                     
     elif   w == W-1:
                     north = earth[l+1,w,h]
@@ -358,6 +365,7 @@ def advance_step(l,w,h,t):
                        path =  np.concatenate((np.zeros((L,W,1)),path),2) 
                        aggregatePaths =  np.concatenate((np.zeros((L,W,1)),aggregatePaths),2)
                        append+=1
+                       h+=1
                        down = earth[l,w,h-1]
                 
                     nextIndex =  max(north, south,  west, down)
@@ -373,7 +381,8 @@ def advance_step(l,w,h,t):
                         w= w-1
                     elif nextIndex == down:
                         path[l,w,h-1] += 1
-                        h=h-1
+                        if h>0:
+                            h=h-1
                     
     elif   l== L-1 :
       
@@ -387,6 +396,8 @@ def advance_step(l,w,h,t):
                        earth =  np.concatenate((np.random.rand(L,W,1),earth),2)
                        path =  np.concatenate((np.zeros((L,W,1)),path),2)
                        append+=1
+                       h+=1
+                      
                        down = earth[l,w,h-1]
 
                     nextIndex =  max( south, east, west, down)
@@ -402,12 +413,14 @@ def advance_step(l,w,h,t):
                         w= w-1
                     elif nextIndex == down:
                         path[l,w,h-1]+= 1
-                        h=h-1
+                        if h>0:
+                            h=h-1
                     
           
             #need corneres
         
     if path[l,w,h]>1:
+                t=t-1
                 path[l,w,h]=path[l,w,h]-1
                 #eeror
                 print 'doubled back', l ,w, h
@@ -427,37 +440,40 @@ def advance_step(l,w,h,t):
                 
                     path[l,w,h+1] += -1
                 
-                t=t-1
+                
                 if(h!=0):
                     h=h-1
-                    path[l,w,h-1]+=1
+                    path[l,w,h]+=1
+                    print 'h!=0'
                 else:
                     h=h
                     earth =  np.concatenate((np.random.rand(L,W,1),earth),2)
                     path =  np.concatenate((np.zeros((L,W,1)),path),2)
                     aggregatePaths =  np.concatenate((np.zeros((L,W,1)),aggregatePaths),2)
                     append+=1
-                path[l,w,h]+=1
+                    path[l,w,h]+=1
+                    print 'h=0'
     return [l,w,h,t]
 
 
 
 
-timesteps =10
+timesteps =50
 
 #simulate rainfall event, run a trace from everywhere on the land surfac
-for i in range(0,L-1):
-    for j in range(0,W-1):
+for i in range(L-2,L-1):
+    for j in range(W-2,W-1):
         h=H+append-1
         l=i
         w=j
         path[l,w,h]=1
-        for t in range (0,timesteps):
+        t=0
+        while  t < timesteps:
            #central points
             print  l,w,h
-            print path.shape, earth.shape, aggregatePaths.shape
+        
             l,w,h,t =      advance_step(l,w,h,t) 
-                
+            t+=1    
         aggregatePaths =  aggregatePaths + path
         print np.sum(path)
     
