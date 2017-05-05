@@ -423,7 +423,7 @@ def advance_step(l,w,h,t):
                 t=t-1
                 path[l,w,h]=path[l,w,h]-1
                 #eeror
-                print 'doubled back', l ,w, h
+                
                 if nextIndex == north:
                     path[l-1,w,h] += -1
                   
@@ -444,7 +444,7 @@ def advance_step(l,w,h,t):
                 if(h!=0):
                     h=h-1
                     path[l,w,h]+=1
-                    print 'h!=0'
+             
                 else:
                     h=h
                     earth =  np.concatenate((np.random.rand(L,W,1),earth),2)
@@ -452,37 +452,34 @@ def advance_step(l,w,h,t):
                     aggregatePaths =  np.concatenate((np.zeros((L,W,1)),aggregatePaths),2)
                     append+=1
                     path[l,w,h]+=1
-                    print 'h=0'
+                  
     return [l,w,h,t]
 
 
+    
+timesteps =15
 
-
-timesteps =50
-
-#simulate rainfall event, run a trace from everywhere on the land surfac
-for i in range(L-2,L-1):
-    for j in range(W-2,W-1):
+# run a trace from everywhere on the land surface
+for i in range(0,L-1):
+    for j in range(0,W-1):
         h=H+append-1
         l=i
         w=j
         path[l,w,h]=1
         t=0
+        #step through time for the moving object
         while  t < timesteps:
            #central points
-            print  l,w,h
+           
         
             l,w,h,t =      advance_step(l,w,h,t) 
             t+=1    
         aggregatePaths =  aggregatePaths + path
-        print np.sum(path)
-    
-        
         path = np.zeros((L,W,H+append))    
 
-#print np.sum(aggregatePaths)/(timesteps*L*W)
-   
 
+   
+#create 3d path visualization
 X=range(0,L)
 Y=range(0,W)
 Z=range (0,H+append)
@@ -501,3 +498,58 @@ ax.set_zlabel('h axis, down towards zero')
 plt.savefig('plt'+".png")
 plt.show()
 
+
+
+#now lets correlate the probability at each point with the number of times it is visited
+#rearrange each matrix using .reshape, plot
+a,b,c = earth.shape
+aggPlt= np.reshape(aggregatePaths, a*b*c)
+earthPlt= np.reshape(earth, a*b*c)
+
+
+plt.figure()
+plt.plot(earthPlt, aggPlt, 'ro')
+plt.xlabel=( 'probability')
+plt.ylabel('number of visits')
+plt.title('correlation without enhancing probabilities')
+
+plt.show()
+
+
+#now lets do the same experiment, except that the path followed by eact object becomes 10% more likely
+#complication will be dealing with double-backs 
+
+for i in range(0,L-1):
+    for j in range(0,W-1):
+        h=H+append-1
+        l=i
+        w=j
+        path[l,w,h]=1
+        t=0
+        #step through time for the moving object
+        while  t < timesteps:
+           #central points
+           
+        
+            l,w,h,t =      advance_step(l,w,h,t) 
+            t+=1    
+        aggregatePaths =  aggregatePaths + path
+        a,b,c= path.shape   
+        pathR= np.reshape(path, a*b*c)
+        earthR= np.reshape(earth, a*b*c)
+        for k in range(0, a*b*c):
+            if pathR[k] == 1:
+                earthR[k]= earthR[k]*1.1
+        earth = np.reshape(earthR, (a,b,c))
+        path = np.zeros((L,W,H+append))     
+a,b,c = earth.shape
+aggPlt= np.reshape(aggregatePaths, a*b*c)
+earthPlt= np.reshape(earth, a*b*c)
+
+
+plt.figure()
+plt.plot(earthPlt, aggPlt, 'ro')
+plt.xlabel=( 'probability')
+plt.ylabel('number of visits')
+plt.title('correlation with enhancing probabilities')
+plt.show()
